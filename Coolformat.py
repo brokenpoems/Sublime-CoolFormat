@@ -39,18 +39,27 @@ class CoolformatCommand(sublime_plugin.TextCommand):
 				)
 				code = view.substr(region)
 				formatted_code = self.getFormattedCode(code, lang, line_eol, initIndent)
-				view.replace(edit, region, formatted_code)
+
+				if formatted_code != '':
+				    view.replace(edit, region, formatted_code)
+				else:
+				    view.replace(edit, region, code)
+
 				if sel.a <= sel.b:
 					regions.append(sublime.Region(region.a, region.a + len(formatted_code)))
 				else:
 					regions.append(sublime.Region(region.a + len(formatted_code), region.a))
+
 			view.sel().clear()
 			[view.sel().add(region) for region in regions]
 		else:
 			region = sublime.Region(0, view.size())
 			code = view.substr(region)
 			formatted_code = self.getFormattedCode(code, lang, line_eol, None)
-			view.replace(edit, region, formatted_code)
+			if formatted_code != '':
+			    view.replace(edit, region, formatted_code)
+			else:
+				view.replace(edit, region, code)
 
 	def showSettings(self):
 		self.view.window().open_file(__path__ + '/CoolFormatLib/CoolFormatConfig.cfconfig')
@@ -72,8 +81,11 @@ class CoolformatCommand(sublime_plugin.TextCommand):
 
 	def getCFLang(self):
 		lang = self.view.settings().get('syntax') # eg Packages/C++/C++.tmLanguage
-		lang = lang[9:lang.find('/', 9)]
-		return Synlanguage.lang_dict.get(lang, -1)
+		res=''
+		for keys in Synlanguage.lang_dict.keys():
+			if lang.find(str(keys),9) != -1:
+				res=str(keys)
+		return Synlanguage.lang_dict.get(res,-1)
 
 	def getCFEol(self):
 		line_eol = self.view.line_endings()
@@ -83,7 +95,7 @@ class CoolformatCommand(sublime_plugin.TextCommand):
 			return '\r\n'
 		elif line_eol == 'Unix':
 			return '\n'
-		else:
+		else:A
 			return '\r'
 		"""
 
@@ -174,7 +186,7 @@ class Synlanguage:
 	'HTML':SYN_HTML,
 	'Java':SYN_JAVA,
 	'JavaScript':SYN_JAVASCRIPT,
-	'JSON':SYN_JSON,
+	'JSON':SYN_JAVASCRIPT,
 	'Objective-C':SYN_OBJECTIVEC,
 	'Objective-C++':SYN_OBJECTIVEC,
 	'PHP':SYN_PHP,
